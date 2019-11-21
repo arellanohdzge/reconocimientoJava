@@ -10,15 +10,17 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
-import org.opencv.highgui.VideoCapture;
+import org.opencv.videoio.VideoCapture;
 import org.opencv.core.Core;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
+import org.opencv.highgui.HighGui;
 import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgcodecs.Imgcodecs;
 
 public class CamCap extends javax.swing.JFrame {
 
@@ -69,7 +71,7 @@ public class CamCap extends javax.swing.JFrame {
                             for (Rect rect : faceDetections.toArray()) {
                                 
                                 // Se crea un cuadrito verde por cada cara detectada
-                                Core.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
+                                Imgproc.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
                                         new Scalar(0, 255, 0));
 
                                 /*
@@ -97,7 +99,7 @@ public class CamCap extends javax.swing.JFrame {
                             }
 
                             // Se codifica la imagen frame a un arreglo de memoria
-                            Highgui.imencode(".bmp", frame, mem);
+                            Imgcodecs.imencode(".bmp", frame, mem);
 
                             // Se convierte el arreglo de bytes de la imagen a un objeto de la clase Image
                             Image im = ImageIO.read(new ByteArrayInputStream(mem.toArray()));
