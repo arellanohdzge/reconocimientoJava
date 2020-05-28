@@ -2,7 +2,7 @@
 
 Descargar OpenCV 4.3.0  (el proyecto está hecho con la version 4.3.0)
 
-Descomprimir el archivo en una carpeta cualquiera, ejemplo c:\java\opencv
+Descomprimir el archivo en una carpeta cualquiera, ejemplo c:\opencv
 
 En NetBeans, agregar una libreria con el nombre "opencv" y referenciar el archivo:  
 
