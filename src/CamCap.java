@@ -16,8 +16,6 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.highgui.HighGui;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -26,7 +24,6 @@ public class CamCap extends javax.swing.JFrame {
 
     private DaemonThread myThread = null;
     int count = 0;
-    VideoCapture webSource = null;
 
     Mat frame = new Mat();
     Mat area;
@@ -49,9 +46,23 @@ public class CamCap extends javax.swing.JFrame {
     class DaemonThread implements Runnable {
 
         protected volatile boolean runnable = false;
-
+        VideoCapture webSource = null;
+        String source = "";
+        
+        DaemonThread(String _source){
+            source = _source;
+        }
+        
         @Override
         public void run() {
+            webSource = new VideoCapture();
+            
+            if (source.equals("Desde WebCam")) { 
+                webSource.open(0);
+            } else {
+                webSource.open(File_path);
+            }            
+            
             faceDetector = new CascadeClassifier(base_path + faceFile); // Se crea un objeto CascadeClassifier que reconocera caras
             faceDetections = new MatOfRect(); // Se inicializa el objeto donde se guardaran las caras detectadas
 
@@ -74,7 +85,7 @@ public class CamCap extends javax.swing.JFrame {
                                 Imgproc.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
                                         new Scalar(0, 255, 0));
 
-                                /*
+                               
                                 cara = frame.submat(faceDetections.toArray()[i]);
                                 
                                 
@@ -88,13 +99,13 @@ public class CamCap extends javax.swing.JFrame {
                                         
                                         Rect rect2 = eyeDetections.toArray()[j];
 
-                                        Core.rectangle(frame, new Point(rect2.x, rect2.y), new Point(rect2.x + rect2.width, rect2.y + rect2.height),
+                                        Imgproc.rectangle(frame, new Point(rect2.x, rect2.y), new Point(rect2.x + rect2.width, rect2.y + rect2.height),
                                         new Scalar(0, 255, 0));
                                         
                                         Mat eye = cara.submat(eyeDetections.toArray()[j]);
 
                                     }
-                                }*/
+                                }
 
                             }
 
@@ -120,6 +131,8 @@ public class CamCap extends javax.swing.JFrame {
                     }
                 }
             }
+            
+            webSource.release();
         }
     }
 
@@ -185,7 +198,7 @@ public class CamCap extends javax.swing.JFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 236, Short.MAX_VALUE)
+            .addGap(0, 369, Short.MAX_VALUE)
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -217,7 +230,7 @@ public class CamCap extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(356, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -233,7 +246,7 @@ public class CamCap extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -248,7 +261,7 @@ public class CamCap extends javax.swing.JFrame {
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 763, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -257,12 +270,12 @@ public class CamCap extends javax.swing.JFrame {
                 .addGap(6, 6, 6)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -271,13 +284,8 @@ public class CamCap extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         if ((jButton1.getText()).equals("Iniciar")) {
-            if (jComboBox1.getSelectedItem().equals("Desde WebCam")) {
-                webSource = new VideoCapture(0);
-            } else {
-                webSource = new VideoCapture(File_path);
-            }
 
-            myThread = new DaemonThread();
+            myThread = new DaemonThread(jComboBox1.getSelectedItem().toString());
             Thread t = new Thread(myThread);
             t.setDaemon(true);
             myThread.runnable = true;
@@ -296,7 +304,6 @@ public class CamCap extends javax.swing.JFrame {
             jButton2.setEnabled(false);
             jButton1.setEnabled(true);
             jComboBox1.setEnabled(true);
-            webSource.release();
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -336,7 +343,6 @@ public class CamCap extends javax.swing.JFrame {
         if (myThread == null) {
         } else if (myThread.runnable) {
             myThread.runnable = false;
-            webSource.release();
         }
     }//GEN-LAST:event_formWindowClosing
 
@@ -348,20 +354,9 @@ public class CamCap extends javax.swing.JFrame {
         //System.loadLibrary("OpenCV");
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-
-                CamCap.setDefaultLookAndFeelDecorated(true);
-                try {
-                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-                } catch (Exception ex) {
-                    System.out.println("Falla en cargar L&F: ");
-                    System.out.println(ex);
-                    System.out.println("Cargando Look & Feel Manager por defecto!");
-                }
-
                 new CamCap().setVisible(true);
             }
         });
-
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
