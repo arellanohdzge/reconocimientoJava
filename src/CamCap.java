@@ -15,6 +15,7 @@ import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -31,16 +32,15 @@ public class CamCap extends javax.swing.JFrame {
 
     MatOfByte mem = new MatOfByte();
 
-    CascadeClassifier faceDetector;  // Objeto reconocedor de imagenes
-    CascadeClassifier eyeDetector;   // Objeto para reconocer ojos
+    CascadeClassifier llaveroDetector;  // Objeto reconocedor de imagenes
 
-    MatOfRect faceDetections;   // Matriz donde se alojarán las caras detectadas
-    MatOfRect eyeDetections;   // Matriz donde se alojarán los ojos detectadas
-
+    MatOfRect llaveroDetections;   // Matriz donde se alojarán las caras detectadas
+    
+    Mat gray;
+    
     String File_path = "";
     String base_path = "./data/haarcascades/";   // Carpeta donde se localizan los modelos de reconocimiento
-    String faceFile = "haarcascade_frontalface_alt.xml";  // Archivo referencia para reconocimiento de rostros
-    String eyeFile = "haarcascade_eye.xml";  // Archivo referencia para reconocimiento de rostros
+    String llaveroFile = "llavero.xml";  // Archivo referencia para reconocimiento de rostros
 
     class DaemonThread implements Runnable {
 
@@ -55,69 +55,45 @@ public class CamCap extends javax.swing.JFrame {
         @Override
         public void run() {
             webSource = new VideoCapture();
-            
+            gray = new Mat();
             if (source.equals("Desde WebCam")) { 
                 webSource.open(0);
             } else {
                 webSource.open(File_path);
             }            
             
-            faceDetector = new CascadeClassifier(base_path + faceFile); // Se crea un objeto CascadeClassifier que reconocera caras
-            faceDetections = new MatOfRect(); // Se inicializa el objeto donde se guardaran las caras detectadas
-
-            eyeDetector = new CascadeClassifier(base_path + eyeFile); // Se crea un objeto CascadeClassifier que reconocera caras
-            eyeDetections = new MatOfRect(); // Se inicializa el objeto donde se guardaran las caras detectadas
+            llaveroDetector = new CascadeClassifier(base_path + llaveroFile); // Se crea un objeto CascadeClassifier que reconocera caras
+            llaveroDetections = new MatOfRect(); // Se inicializa el objeto donde se guardaran las caras detectadas
 
             synchronized (this) {
                 while (runnable) {
                     if (webSource.grab()) {
                         try {
                             webSource.retrieve(frame); // Se obtiene un recuadro de la camara
-
-                            faceDetector.detectMultiScale(frame, faceDetections); // Se buscan las caras dentro de la imagen y se guardan en faceDetections
                             
-                            int i= 0;
+                            Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
+                            Imgproc.equalizeHist(gray, gray);
                             
-                            for (Rect rect : faceDetections.toArray()) {
-                                
+                            //llaveroDetector.detectMultiScale(frame, llaveroDetections); // Se buscan las caras dentro de la imagen y se guardan en faceDetections
+                            
+                            llaveroDetector.detectMultiScale(gray, llaveroDetections, 1.1, 2, 2, new Size(200, 200), new Size());
+                            
+                            for (Rect rect : llaveroDetections.toArray()) {
                                 // Se crea un cuadrito verde por cada cara detectada
                                 Imgproc.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
                                         new Scalar(0, 255, 0));
-
-                               
-                                cara = frame.submat(faceDetections.toArray()[i]);
-                                
-                                
-                                eyeDetector.detectMultiScale(cara, eyeDetections);
-
-                                if (eyeDetections.toArray().length != 0) {
-
-                                    System.out.println("Cara con " + eyeDetections.toArray().length + " ojos");
-
-                                    for (int j = 0; j < eyeDetections.toArray().length; j++) {
-                                        
-                                        Rect rect2 = eyeDetections.toArray()[j];
-
-                                        Imgproc.rectangle(frame, new Point(rect2.x, rect2.y), new Point(rect2.x + rect2.width, rect2.y + rect2.height),
-                                        new Scalar(0, 255, 0));
-                                        
-                                        Mat eye = cara.submat(eyeDetections.toArray()[j]);
-
-                                    }
-                                }
-
-                            }
-
+                            }   
+                            
                             // Se codifica la imagen frame a un arreglo de memoria
                             Imgcodecs.imencode(".bmp", frame, mem);
-
+                            
                             // Se convierte el arreglo de bytes de la imagen a un objeto de la clase Image
                             Image im = ImageIO.read(new ByteArrayInputStream(mem.toArray()));
 
                             // Se despliega en el Panel
                             BufferedImage buff = (BufferedImage) im;
                             Graphics g = jPanel1.getGraphics();
-
+                             
                             if (g.drawImage(buff, 0, 0, getWidth(), getHeight() - 150, 0, 0, buff.getWidth(), buff.getHeight(), null)) {
                                 if (runnable == false) {
                                     System.out.println("En metodo wait()");
@@ -349,7 +325,7 @@ public class CamCap extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        System.load("/home/gio/Programacion/opencv/build/lib/libopencv_java430.so");
         //System.loadLibrary("OpenCV");
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
