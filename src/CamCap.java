@@ -86,6 +86,7 @@ public class CamCap extends javax.swing.JFrame {
                             // Se codifica la imagen frame a un arreglo de memoria
                             Imgcodecs.imencode(".bmp", frame, mem);
                             
+
                             // Se convierte el arreglo de bytes de la imagen a un objeto de la clase Image
                             Image im = ImageIO.read(new ByteArrayInputStream(mem.toArray()));
 
