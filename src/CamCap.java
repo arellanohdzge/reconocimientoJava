@@ -34,13 +34,13 @@ public class CamCap extends javax.swing.JFrame {
 
     CascadeClassifier llaveroDetector;  // Objeto reconocedor de imagenes
 
-    MatOfRect llaveroDetections;   // Matriz donde se alojarán las caras detectadas
+    MatOfRect llaveroDetections;   // Matriz donde se alojarán los llaveros detectados
     
     Mat gray;
     
     String File_path = "";
     String base_path = "./data/haarcascades/";   // Carpeta donde se localizan los modelos de reconocimiento
-    String llaveroFile = "llavero.xml";  // Archivo referencia para reconocimiento de rostros
+    String llaveroFile = "llavero.xml";  // Archivo referencia para reconocimiento de llaves
 
     class DaemonThread implements Runnable {
 
@@ -62,8 +62,8 @@ public class CamCap extends javax.swing.JFrame {
                 webSource.open(File_path);
             }            
             
-            llaveroDetector = new CascadeClassifier(base_path + llaveroFile); // Se crea un objeto CascadeClassifier que reconocera caras
-            llaveroDetections = new MatOfRect(); // Se inicializa el objeto donde se guardaran las caras detectadas
+            llaveroDetector = new CascadeClassifier(base_path + llaveroFile); // Se crea un objeto CascadeClassifier que reconocera llaveros
+            llaveroDetections = new MatOfRect(); // Se inicializa el objeto donde se guardaran los llaveros detectados
 
             synchronized (this) {
                 while (runnable) {
@@ -74,12 +74,11 @@ public class CamCap extends javax.swing.JFrame {
                             Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
                             Imgproc.equalizeHist(gray, gray);
                             
-                            //llaveroDetector.detectMultiScale(frame, llaveroDetections); // Se buscan las caras dentro de la imagen y se guardan en faceDetections
                             
                             llaveroDetector.detectMultiScale(gray, llaveroDetections, 1.1, 2, 2, new Size(200, 200), new Size());
                             
                             for (Rect rect : llaveroDetections.toArray()) {
-                                // Se crea un cuadrito verde por cada cara detectada
+                                // Se crea un cuadrito verde por cada llavero detectado
                                 Imgproc.rectangle(frame, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height),
                                         new Scalar(0, 255, 0));
                             }   
